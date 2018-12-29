@@ -281,6 +281,9 @@ std::string coordToString(uint8_t col, uint8_t row) {
 }
 
 
+
+
+
 void pawnMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList) {
     //if the piece is white
     if (turn % 2 == WHITE) {
@@ -328,21 +331,137 @@ void pawnMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList) {
     }
 }
 
-void rookMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList){
-    if(turn%2 == WHITE){
-        //check ahead
-        int y = col+1;
-        int x = row;
-        while(y < BOARD_SIZE && board[y][x].getColor() == NOCOLOR){
-            moveList.push_back(coordToString(y,x));
-        }0
-        //check behind
-    }
-    else{
+void rookMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList) {
+    if (turn % 2 == WHITE) {
+        //check right
+        int x = col + 1;
+        int y = row;
+        //all empty spaces on right
+        while (x < BOARD_SIZE && board[x][y].getColor() == NOCOLOR) {
+            moveList.push_back(coordToString(x, y));
+            x++;
+        }
+        //Opposing piece on right
+        if (x < BOARD_SIZE && board[x][y].getColor() == BLACK) {
+            moveList.push_back(coordToString(x, y));
+        }
+        //check left
+        x = col - 1;
+        while (x >= 0 && board[x][y].getColor() == NOCOLOR) {
+            moveList.push_back(coordToString(x, y));
+            x--;
+        }
+        if (x >= 0 && board[x][y].getColor() == BLACK) {
+            moveList.push_back(coordToString(x, y));
+        }
+        //check front
+        x = col;
+        y = row + 1;
+        //all empty spaces on right
+        while (y < BOARD_SIZE && board[x][y].getColor() == NOCOLOR) {
+            moveList.push_back(coordToString(x, y));
+            y++;
+        }
+        //Opposing piece on right
+        if (y < BOARD_SIZE && board[x][y].getColor() == BLACK) {
+            moveList.push_back(coordToString(x, y));
+        }
+        //check back
+        y = col - 1;
+        while (y >= 0 && board[x][y].getColor() == NOCOLOR) {
+            moveList.push_back(coordToString(x, y));
+            y--;
+        }
+        if (y >= 0 && board[x][y].getColor() == BLACK) {
+            moveList.push_back(coordToString(x, y));
+        } else {
+            //check right
+            int x = col + 1;
+            int y = row;
+            //all empty spaces on right
+            while (x < BOARD_SIZE && board[x][y].getColor() == NOCOLOR) {
+                moveList.push_back(coordToString(x, y));
+                x++;
+            }
+            //Opposing piece on right
+            if (x < BOARD_SIZE && board[x][y].getColor() == WHITE) {
+                moveList.push_back(coordToString(x, y));
+            }
+            //check left
+            x = col - 1;
+            while (x >= 0 && board[x][y].getColor() == NOCOLOR) {
+                moveList.push_back(coordToString(x, y));
+                x--;
+            }
+            if (x >= 0 && board[x][y].getColor() == WHITE) {
+                moveList.push_back(coordToString(x, y));
+            }
+            //check front
+            x = col;
+            y = row + 1;
+            //all empty spaces on right
+            while (y < BOARD_SIZE && board[x][y].getColor() == NOCOLOR) {
+                moveList.push_back(coordToString(x, y));
+                y++;
+            }
+            //Opposing piece on right
+            if (y < BOARD_SIZE && board[x][y].getColor() == WHITE) {
+                moveList.push_back(coordToString(x, y));
+            }
+            //check back
+            y = col - 1;
+            while (y >= 0 && board[x][y].getColor() == NOCOLOR) {
+                moveList.push_back(coordToString(x, y));
+                y--;
+            }
+            if (y >= 0 && board[x][y].getColor() == WHITE) {
+                moveList.push_back(coordToString(x, y));
+            }
+        }
 
     }
 }
 
+void bishopMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList){
+    //TODO: implement
+}
+
+void knightMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList){
+    //TODO: implement
+}
+
+void queenMoves(uint8_t col, uint8_t row, std::vector<std::string> moveList){
+    rookMoves(col,row,moveList);
+    bishopMoves(col,row,moveList);
+}
+
+auto getFunctionFromPiece(Piece piece){
+    if (piece.getLetter() == FD) {
+        //TODO:
+    } else if (piece.getLetter() == WFA) {
+        //TODO:
+    } else if (piece.getLetter() == SUPER) {
+        //TODO:
+    } else if (piece.getLetter() == ARCH) {
+        //TODO:
+    } else if (piece.getLetter() == CHANC) {
+        //TODO:
+    } else if (piece.getLetter() == ROSE) {
+        //TODO:
+    } else if (piece.getLetter() == ROOK) {
+        //TODO:
+    } else if (piece.getLetter() == KING) {
+        //TODO:
+    } else if (piece.getLetter() == QUEEN) {
+        return queenMoves;
+    } else if (piece.getLetter() == BISHOP) {
+        return bishopMoves;
+    } else if (piece.getLetter() == KNIGHT) {
+        return knightMoves;
+    } else if (piece.getLetter() == PAWN) {
+        return pawnMoves;
+    }
+}
 //Get possible moves for piece
 std::vector<std::string> getMoves(Piece piece, const std::string &pieceLocation) {
     std::vector<std::string> moveList;
@@ -373,7 +492,6 @@ std::vector<std::string> getMoves(Piece piece, const std::string &pieceLocation)
         //TODO:
     } else if (piece.getLetter() == PAWN) {
         pawnMoves(col, row, moveList);
-
     }
     return moveList;
 }
