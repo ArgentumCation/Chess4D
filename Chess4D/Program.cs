@@ -7,12 +7,63 @@ namespace Chess4D
     internal class Program
     {
         private static Piece.Teams currentPlayer;
+        // Checks if a piece is attacking it's allies
+        // team is the team of the piece making the attack
+        // x and y are target coords
+        private static bool AttackingAllies(byte x, byte y, Piece.Teams team)
+        {
+            
+            var attackedPiece = Board._board[x, y];
+            if (attackedPiece.team != Piece.Teams.Undefined)
+            {
+                if (attackedPiece.team == team) return true;
 
+            }
+            return false;
+        }
 
+        //Find out if a movement would move through a piece
+        // x,y are the target
+        // currentX, currentY are coords of current piece
+        private static bool MoveThroughPieces(byte x, byte y, byte currentX, byte currentY)
+        {
+            //Get direction of movement
+            var directionX = x - currentX;
+            if (directionX > 0)
+                directionX = 1;
+            else if (directionX < 0) directionX = -1;
+
+            var directionY = y - currentY;
+            if (directionY > 0)
+                directionY = 1;
+            else if (directionY < 0) directionY = -1;
+
+            //Check if every square is empty
+            int i = currentX;
+            int j = currentY;
+            //move once to avoid checking self
+            i += directionX;
+            j += directionY;
+            while (i != x || j != y)
+            {
+                if (Board._board[x, y].team != Piece.Teams.Undefined) return true;
+
+                i += directionX;
+                j += directionY;
+            }
+
+            return false;
+        }
+
+        
         // Get a piece given it's coordinates
         // Returns true if piece is valid, false otherwise
         private static bool GetPiece(ref byte coords)
         {
+            if (coords > Board.BOARD_SIZE)
+            {
+                throw new ArgumentOutOfRangeException(nameof(coords));
+            }
             //Prompt user for coordinates
             Console.WriteLine(currentPlayer + "'s Move? (c,r)");
             var input = Console.ReadLine()?.Split(",");
@@ -153,75 +204,35 @@ namespace Chess4D
         private static IEnumerable<byte> RookMove(byte coords)
         {
             IEnumerable<byte> moves = new List<byte>();
-            byte currentX = Piece.GetX(coords);
-            byte currentY = Piece.GetY(coords);
-               //            //Check Right
-               //            for (var x = (byte) (currentX + 1); x < Board.BOARD_SIZE; x++)
-               //            {
-               //                moves.Append(Piece.GetCoords(x, currentY));
-               //                //Stop iteration after find a piece
-               //                if (Board._board[x, currentY].type != Piece.PieceTypes.Undefined) break;
-               //            }
-               //
-               //            //Check Left
-               //            for (var x = (byte) (currentX - 1); x < Board.BOARD_SIZE; x--)
-               //            {
-               //                moves.Append(Piece.GetCoords(x, currentY));
-               //                //Stop iteration after find a piece
-               //                if (Board._board[x, currentY].type != Piece.PieceTypes.Undefined) break;
-               //            }
-               //
-               //            // Check Up
-               //            for (var y = (byte) (currentY + 1); y < Board.BOARD_SIZE; y++)
-               //            {
-               //                moves.Append(Piece.GetCoords(currentX, y));
-               //                //Stop iteration after find a piece
-               //                if (Board._board[currentX, y].type != Piece.PieceTypes.Undefined) break;
-               //            }
-               //
-               //            //Check Down
-               //            for (var y = (byte) (currentY - 1); y < Board.BOARD_SIZE; y--)
-               //            {
-               //                moves.Append(Piece.GetCoords(currentX, y));
-               //                //Stop iteration after find a piece
-               //                if (Board._board[currentX, y].type != Piece.PieceTypes.Undefined) break;
-               //            }
-               
-               //horizontal moves
-               for (byte i = 0; i < Board.BOARD_SIZE; i++)
-               {
-                   byte x = i;
-                   byte y = currentY;
-                   if (x != currentX)
-                   {
-                       if (!AttackingAllies(x, y))
-                       {
-                           if (!MoveThroughPieces(x, y))
-                           {
-                               moves.Append(Piece.GetCoords(x,y))
-                           }
-                       }
-                   }
-               }
-               //horizontal moves
-               for (byte i = 0; i < Board.BOARD_SIZE; i++)
-               {
-                   byte x = i;
-                   byte y = currentY;
-                   if (x != currentX)
-                   {
-                       if (!AttackingAllies(x, y))
-                       {
-                           if (!MoveThroughPieces(x, y))
-                           {
-                               moves.Append(Piece.GetCoords(x,y))
-                           }
-                       }
-                   }
-               }
+            var currentX = Piece.GetX(coords);
+            var currentY = Piece.GetY(coords);
+            var team = Board._board[currentX, currentY].team;
+            //horizontal moves
+            for (byte i = 0; i < Board.BOARD_SIZE; i++)
+            {
+                var x = i;
+                var y = currentY;
+                if (x != currentX)
+                    if (!AttackingAllies(x, y, team))
+                        if (!MoveThroughPieces(x, y, currentX, currentY))
+                            moves.Append(Piece.GetCoords(x, y));
+            }
+
+            //horizontal moves
+            for (byte i = 0; i < Board.BOARD_SIZE; i++)
+            {
+                var x = i;
+                var y = currentY;
+                if (x != currentX)
+                    if (!AttackingAllies(x, y, team))
+                        if (!MoveThroughPieces(x, y, currentX, currentY))
+                            moves.Append(Piece.GetCoords(x, y));
+            }
+
             return moves;
         }
 
+        
         public static void Main(string[] args)
         {
             currentPlayer = Piece.Teams.White;
@@ -265,17 +276,30 @@ namespace Chess4D
             Pawn,
 
             //Chess on a Really Big Board
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBFD,
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBWFA,
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBRose,
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBArchBishop,
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBChancellor,
+            // ReSharper disable once InconsistentNaming
+            // ReSharper disable once IdentifierTypo
             CRRBSuperKnight,
 
+            // ReSharper disable once CommentTypo
             //Todo: Dai Shogi Pieces
             //Todo: Deal with full names later
             ShogiAngryBoar,
-            shogiBishop,
+            ShogiBishop,
             ShogiTiger,
             ShogiNekomata,
             ShogiCopper,
@@ -438,6 +462,8 @@ namespace Chess4D
         // Performs initial setup of the board
         public static void SetUpBoard()
         {
+            
+            //Chess on a Really Big Board Setup
             Piece.PieceTypes[] CRRBpieceArray =
             {
                 Piece.PieceTypes.Rook,
@@ -464,6 +490,44 @@ namespace Chess4D
                 _board[x, 1] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.White);
                 _board[x, 15] = new Piece(CRRBpieceArray[x], Piece.Teams.Black);
                 _board[x, 14] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
+            }
+
+            Piece.PieceTypes[] DaiShogiArray1 =
+            {
+                Piece.PieceTypes.ShogiLance,
+                Piece.PieceTypes.ShogiKnight,
+                Piece.PieceTypes.ShogiStone,
+                Piece.PieceTypes.ShogiIron,
+                Piece.PieceTypes.ShogiCopper,
+                Piece.PieceTypes.ShogiSilver,
+                Piece.PieceTypes.ShogiGold,
+                Piece.PieceTypes.ShogiKing,
+                Piece.PieceTypes.ShogiGold,
+                Piece.PieceTypes.ShogiSilver,
+                Piece.PieceTypes.ShogiCopper,
+                Piece.PieceTypes.ShogiIron,
+                Piece.PieceTypes.ShogiStone,
+                Piece.PieceTypes.ShogiKnight,
+                Piece.PieceTypes.ShogiLance
+            };
+            Piece.PieceTypes[] DaiShogiArray2 =
+            {
+                Piece.PieceTypes.ShogiChariot,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiNekomata,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiLeopard,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiTiger,
+                Piece.PieceTypes.ShogiElephant,
+                Piece.PieceTypes.ShogiTiger,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiLeopard,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiNekomata,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiChariot,
+
             }
         }
     }
