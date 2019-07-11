@@ -333,7 +333,8 @@ namespace Chess4D
             ShogiVerticalMover,
             ShogiViolentOx,
             ShogiWhale,
-            ShogiWhiteHorse
+            ShogiWhiteHorse,
+            ShogiQueen
         }
 
         public enum Teams
@@ -492,6 +493,8 @@ namespace Chess4D
                 _board[x, 14] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
             }
 
+            
+            //Dai Shogi
             Piece.PieceTypes[] DaiShogiArray1 =
             {
                 Piece.PieceTypes.ShogiLance,
@@ -526,9 +529,46 @@ namespace Chess4D
                 Piece.PieceTypes.Undefined,
                 Piece.PieceTypes.ShogiNekomata,
                 Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiChariot,
+                Piece.PieceTypes.ShogiChariot
 
+            };
+            Piece.PieceTypes[] DaiShogiArray3 =
+            {
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiViolentOx,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiAngryBoar,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiWolf,
+                Piece.PieceTypes.ShogiPhoenix,
+                Piece.PieceTypes.ShogiLion,
+                Piece.PieceTypes.ShogiKirin,
+                Piece.PieceTypes.ShogiWolf,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiAngryBoar,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiViolentOx,
+                Piece.PieceTypes.Undefined
+            };
+            Piece.PieceTypes[] DaiShogiArray4 =
+            {
+                Piece.PieceTypes.ShogiRook,
+                Piece.PieceTypes.ShogiDragon,
+                Piece.PieceTypes.ShogiSideMover,
+                Piece.PieceTypes.ShogiVerticalMover,
+                Piece.PieceTypes.ShogiBishop,
+                Piece.PieceTypes.ShogiDragonHorse,
+                Piece.PieceTypes.ShogiDragonKing,
+                Piece.PieceTypes.ShogiQueen,
+                Piece.PieceTypes.ShogiDragonKing,
+                Piece.PieceTypes.ShogiDragonHorse,
+                Piece.PieceTypes.ShogiBishop,
+                Piece.PieceTypes.ShogiVerticalMover,
+                Piece.PieceTypes.ShogiSideMover,
+                Piece.PieceTypes.ShogiDragon,
+                Piece.PieceTypes.ShogiRook
             }
+            
         }
     }
 }
