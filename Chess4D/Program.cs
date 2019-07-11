@@ -446,6 +446,7 @@ namespace Chess4D
         }
 
         // Print the board to console
+        // TODO: make dynamic so that board size can be variable
         public static void PrintBoard()
         {
             Console.WriteLine("   || a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p |");
@@ -567,8 +568,56 @@ namespace Chess4D
                 Piece.PieceTypes.ShogiSideMover,
                 Piece.PieceTypes.ShogiDragon,
                 Piece.PieceTypes.ShogiRook
-            }
+            };
+            //Row 5 is just pawns
+            Piece.PieceTypes[] DaiShogiArray6 =
+            {
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiGoBetween,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiGoBetween,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+
+            };
+
+            Piece.PieceTypes[] ShogiArray1 =
+            {
+                Piece.PieceTypes.ShogiLance,
+                Piece.PieceTypes.ShogiKnight,
+                Piece.PieceTypes.ShogiSilver,
+                Piece.PieceTypes.ShogiGold,
+                Piece.PieceTypes.ShogiKing,
+                Piece.PieceTypes.ShogiGold,
+                Piece.PieceTypes.ShogiSilver,
+                Piece.PieceTypes.ShogiKnight,
+                Piece.PieceTypes.ShogiLance
+            };
+            Piece.PieceTypes[] ShogiArray2 =
+            {
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.ShogiBishop,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Undefined,
+                Piece.PieceTypes.Rook,
+                Piece.PieceTypes.Undefined
+            };
+            //Array 3 is all pawns
             
+            //TODO: Chu Shogi
+
         }
     }
 }
