@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+
+//Todo: Add 4D Capability
 namespace Chess4D
 {
     internal class Program
@@ -66,9 +68,13 @@ namespace Chess4D
             //Convert input into coordinates
 
             //First coord is encoded as 4 LSB
-            coords = (byte) (Convert.ToChar(input[0].ToUpper()) - 65);
-            //Second coords is encoded as 4 MSB
-            coords |= (byte) ((Convert.ToInt32(input[1]) - 1) << 4);
+            if (input != null)
+            {
+                coords = (byte) (Convert.ToChar(input[0].ToUpper()) - 65);
+                //Second coords is encoded as 4 MSB
+                coords |= (byte) ((Convert.ToInt32(input[1]) - 1) << 4);
+            }
+
             //Console.WriteLine("[{0}]", string.Join(", ", coords));
 
             //check if coord is valid
@@ -90,7 +96,7 @@ namespace Chess4D
         //Todo: add shogi
         private static IEnumerable<byte> GetMoves(byte coords)
         {
-            IEnumerable<byte> possibleMoves = new List<byte>();
+            IEnumerable<byte> possibleMoves;
             switch (Board._board[coords & 0xF, coords >> 4].type)
             {
                 case Piece.PieceTypes.Rook:
@@ -115,11 +121,11 @@ namespace Chess4D
                     break;
                 case Piece.PieceTypes.CRRBArchBishop:
                     possibleMoves = BishopMove(coords);
-                    possibleMoves.Union(KnightMove(coords));
+                    possibleMoves = possibleMoves.Union(KnightMove(coords));
                     break;
                 case Piece.PieceTypes.Queen:
                     possibleMoves = RookMove(coords);
-                    possibleMoves.Union(BishopMove(coords));
+                    possibleMoves = possibleMoves.Union(BishopMove(coords));
                     break;
                 //Todo handle check/checkmate
                 case Piece.PieceTypes.King:
@@ -127,7 +133,7 @@ namespace Chess4D
                     break;
                 case Piece.PieceTypes.CRRBChancellor:
                     possibleMoves = RookMove(coords);
-                    possibleMoves.Union(KnightMove(coords));
+                    possibleMoves = possibleMoves.Union(KnightMove(coords));
                     break;
                 //Todo: decompose into knight, camel, and zebra
                 case Piece.PieceTypes.CRRBSuperKnight:
@@ -145,51 +151,43 @@ namespace Chess4D
             //Todo: king move
             return possibleMoves;
         }
-
-        //Todo:finish
+        
         private static IEnumerable<byte> PawnMoves(byte coords)
         {
             //Console.WriteLine(""+ Piece.GetX(coords)+" " + Piece.GetY(coords));
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> SuperKnightMoves(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> KingMove(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> RoseMove(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> BishopMove(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> WFAMove(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> FDMove(byte coords)
         {
             throw new NotImplementedException();
         }
-
-//Todo:finish
+        
         private static IEnumerable<byte> KnightMove(byte coords)
         {
             throw new NotImplementedException();
@@ -245,12 +243,12 @@ namespace Chess4D
                 {
                     //find moves
                     var moves = GetMoves(coords);
-                    moveValid = selectMove(moves);
+                    moveValid = SelectMove(moves);
                 }
             }
         }
 
-        private static bool selectMove(IEnumerable<byte> moves)
+        private static bool SelectMove(IEnumerable<byte> moves)
         {
             throw new NotImplementedException();
         }
@@ -374,7 +372,7 @@ namespace Chess4D
         {
             return (byte) ((y << 4) | (x & 0xF));
         }
-
+        //TODO: Add Shogi Pieces
         public override string ToString()
         {
             var res = "";
@@ -419,6 +417,80 @@ namespace Chess4D
                 case PieceTypes.Pawn:
                     res += "p";
                     break;
+                case PieceTypes.ShogiAngryBoar:
+                    break;
+                case PieceTypes.ShogiBishop:
+                    break;
+                case PieceTypes.ShogiTiger:
+                    break;
+                case PieceTypes.ShogiNekomata:
+                    break;
+                case PieceTypes.ShogiCopper:
+                    break;
+                case PieceTypes.ShogiDragonHorse:
+                    break;
+                case PieceTypes.ShogiDragonKing:
+                    break;
+                case PieceTypes.ShogiElephant:
+                    break;
+                case PieceTypes.ShogiWolf:
+                    break;
+                case PieceTypes.ShogiLeopard:
+                    break;
+                case PieceTypes.ShogiDragon:
+                    break;
+                case PieceTypes.ShogiFlyingOx:
+                    break;
+                case PieceTypes.ShogiStag:
+                    break;
+                case PieceTypes.ShogiFreeBoar:
+                    break;
+                case PieceTypes.ShogiGoBetween:
+                    break;
+                case PieceTypes.ShogiGold:
+                    break;
+                case PieceTypes.ShogiFalcon:
+                    break;
+                case PieceTypes.ShogiIron:
+                    break;
+                case PieceTypes.ShogiKing:
+                    break;
+                case PieceTypes.ShogiKirin:
+                    break;
+                case PieceTypes.ShogiKnight:
+                    break;
+                case PieceTypes.ShogiLance:
+                    break;
+                case PieceTypes.ShogiLion:
+                    break;
+                case PieceTypes.ShogiPawn:
+                    break;
+                case PieceTypes.ShogiPhoenix:
+                    break;
+                case PieceTypes.ShogPrince:
+                    break;
+                case PieceTypes.ShogiChariot:
+                    break;
+                case PieceTypes.ShogiRook:
+                    break;
+                case PieceTypes.ShogiSideMover:
+                    break;
+                case PieceTypes.ShogiSilver:
+                    break;
+                case PieceTypes.ShogiStone:
+                    break;
+                case PieceTypes.ShogiEagle:
+                    break;
+                case PieceTypes.ShogiVerticalMover:
+                    break;
+                case PieceTypes.ShogiViolentOx:
+                    break;
+                case PieceTypes.ShogiWhale:
+                    break;
+                case PieceTypes.ShogiWhiteHorse:
+                    break;
+                case PieceTypes.ShogiQueen:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -434,6 +506,8 @@ namespace Chess4D
         public enum GameTypes
         {
             Chess,
+
+            // ReSharper disable once InconsistentNaming
             CRRB,
             Shogi,
             ChuShogi,
@@ -443,6 +517,8 @@ namespace Chess4D
         //Board Size, changing this will probably break something
         //But we may need to change this to 48 when we start working on mapping the board to other surfaces
         public const byte BoardSize = 8;
+
+        // ReSharper disable once InconsistentNaming
         public static readonly Piece[,] _board;
 
         public static GameTypes GameType = GameTypes.Chess;
@@ -505,9 +581,11 @@ namespace Chess4D
                         _board[x, 7] = new Piece(chesspieceArray[x], Piece.Teams.Black);
                         _board[x, 6] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
                     }
+
                     break;
-           
+
                 case GameTypes.CRRB:
+                    // ReSharper disable once InconsistentNaming
                     Piece.PieceTypes[] CRRBPieceArray =
                     {
                         Piece.PieceTypes.Rook,
@@ -535,8 +613,9 @@ namespace Chess4D
                         _board[x, 15] = new Piece(CRRBPieceArray[x], Piece.Teams.Black);
                         _board[x, 14] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
                     }
+
                     break;
-                    
+
                 case GameTypes.Shogi:
                     Piece.PieceTypes[] shogiArray1 =
                     {
@@ -561,8 +640,7 @@ namespace Chess4D
                         Piece.PieceTypes.ShogiPawn,
                         Piece.PieceTypes.ShogiPawn,
                         Piece.PieceTypes.ShogiPawn
-                        
-                    }
+                    };
                     Piece.PieceTypes[] shogiArray3 =
                     {
                         Piece.PieceTypes.Undefined,
@@ -575,16 +653,15 @@ namespace Chess4D
                         Piece.PieceTypes.Rook,
                         Piece.PieceTypes.Undefined
                     };
-                    Piece.PieceTypes[][] shogiGrid = {shogiArray1,shogiArray2,shogiArray3};
-                    
-                    for (int x = 0; x < BoardSize; x++)
+                    Piece.PieceTypes[][] shogiGrid = {shogiArray1, shogiArray2, shogiArray3};
+
+                    for (var x = 0; x < BoardSize; x++)
+                    for (var y = 0; y < shogiGrid.Length; y++)
                     {
-                        for (int y = 0; y < shogiGrid.Length; y++)
-                        {
-                            _board[x, y] = new Piece(shogiGrid[y][x],Piece.Teams.Black);
-                            _board[x, BoardSize - y - 1] = new Piece(shogiGrid[y][x],Piece.Teams.White);
-                        }
+                        _board[x, y] = new Piece(shogiGrid[y][x], Piece.Teams.Black);
+                        _board[x, BoardSize - y - 1] = new Piece(shogiGrid[y][x], Piece.Teams.White);
                     }
+
                     break;
                 case GameTypes.ChuShogi:
                     throw new NotImplementedException();
@@ -679,7 +756,7 @@ namespace Chess4D
                         Piece.PieceTypes.ShogiPawn,
                         Piece.PieceTypes.ShogiPawn,
                         Piece.PieceTypes.ShogiPawn,
-                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn
                     };
                     Piece.PieceTypes[] daiShogiArray6 =
                     {
@@ -699,22 +776,22 @@ namespace Chess4D
                         Piece.PieceTypes.Undefined,
                         Piece.PieceTypes.Undefined
                     };
-                    Piece.PieceTypes[][] daiShogiGrid = {daiShogiArray1,daiShogiArray2,daiShogiArray3,daiShogiArray4,daiShogiArray5,daiShogiArray6};
-                    
-                    for (int x = 0; x < BoardSize; x++)
+                    Piece.PieceTypes[][] daiShogiGrid =
                     {
-                        for (int y = 0; y < daiShogiGrid.Length; y++)
-                        {
-                            _board[x, y] = new Piece(daiShogiGrid[y][x],Piece.Teams.Black);
-                            _board[x, BoardSize - y - 1] = new Piece(daiShogiGrid[y][x],Piece.Teams.White);
-                        }
+                        daiShogiArray1, daiShogiArray2, daiShogiArray3, daiShogiArray4, daiShogiArray5, daiShogiArray6
+                    };
+
+                    for (var x = 0; x < BoardSize; x++)
+                    for (var y = 0; y < daiShogiGrid.Length; y++)
+                    {
+                        _board[x, y] = new Piece(daiShogiGrid[y][x], Piece.Teams.Black);
+                        _board[x, BoardSize - y - 1] = new Piece(daiShogiGrid[y][x], Piece.Teams.White);
                     }
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-
 
 
             //TODO: Chu Shogi
