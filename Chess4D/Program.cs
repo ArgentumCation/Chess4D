@@ -7,18 +7,16 @@ namespace Chess4D
     internal class Program
     {
         private static Piece.Teams currentPlayer;
+
         // Checks if a piece is attacking it's allies
         // team is the team of the piece making the attack
         // x and y are target coords
         private static bool AttackingAllies(byte x, byte y, Piece.Teams team)
         {
-            
             var attackedPiece = Board._board[x, y];
             if (attackedPiece.team != Piece.Teams.Undefined)
-            {
-                if (attackedPiece.team == team) return true;
-
-            }
+                if (attackedPiece.team == team)
+                    return true;
             return false;
         }
 
@@ -55,15 +53,12 @@ namespace Chess4D
             return false;
         }
 
-        
+
         // Get a piece given it's coordinates
         // Returns true if piece is valid, false otherwise
         private static bool GetPiece(ref byte coords)
         {
-            if (coords > Board.BOARD_SIZE)
-            {
-                throw new ArgumentOutOfRangeException(nameof(coords));
-            }
+            if (coords > Board.BoardSize) throw new ArgumentOutOfRangeException(nameof(coords));
             //Prompt user for coordinates
             Console.WriteLine(currentPlayer + "'s Move? (c,r)");
             var input = Console.ReadLine()?.Split(",");
@@ -79,8 +74,8 @@ namespace Chess4D
             //check if coord is valid
 
             //check range
-            if ((coords & 0xF) < 0 || (coords & 0xF) >= Board.BOARD_SIZE || coords >> 4 < 0 ||
-                coords >> 4 >= Board.BOARD_SIZE)
+            if ((coords & 0xF) < 0 || (coords & 0xF) >= Board.BoardSize || coords >> 4 < 0 ||
+                coords >> 4 >= Board.BoardSize)
                 return false;
 
             //check team
@@ -208,7 +203,7 @@ namespace Chess4D
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
             //horizontal moves
-            for (byte i = 0; i < Board.BOARD_SIZE; i++)
+            for (byte i = 0; i < Board.BoardSize; i++)
             {
                 var x = i;
                 var y = currentY;
@@ -219,7 +214,7 @@ namespace Chess4D
             }
 
             //horizontal moves
-            for (byte i = 0; i < Board.BOARD_SIZE; i++)
+            for (byte i = 0; i < Board.BoardSize; i++)
             {
                 var x = i;
                 var y = currentY;
@@ -232,7 +227,7 @@ namespace Chess4D
             return moves;
         }
 
-        
+
         public static void Main(string[] args)
         {
             currentPlayer = Piece.Teams.White;
@@ -279,18 +274,23 @@ namespace Chess4D
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBFD,
+
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBWFA,
+
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBRose,
+
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBArchBishop,
+
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBChancellor,
+
             // ReSharper disable once InconsistentNaming
             // ReSharper disable once IdentifierTypo
             CRRBSuperKnight,
@@ -431,193 +431,293 @@ namespace Chess4D
 
     internal static class Board
     {
-        //Board Size, changing this will probably break something
-        //But we may need to change this to 24 when we start working on mapping the board to other surfaces
-        public const byte BOARD_SIZE = 16;
+        public enum GameTypes
+        {
+            Chess,
+            CRRB,
+            Shogi,
+            ChuShogi,
+            DaiShogi
+        }
 
+        //Board Size, changing this will probably break something
+        //But we may need to change this to 48 when we start working on mapping the board to other surfaces
+        public const byte BoardSize = 8;
         public static readonly Piece[,] _board;
+
+        public static GameTypes GameType = GameTypes.Chess;
 
         static Board()
         {
-            _board = new Piece[BOARD_SIZE, BOARD_SIZE];
-            for (byte x = 0; x < BOARD_SIZE; x++)
-            for (byte y = 0; y < BOARD_SIZE; y++)
+            _board = new Piece[BoardSize, BoardSize];
+            for (byte x = 0; x < BoardSize; x++)
+            for (byte y = 0; y < BoardSize; y++)
                 _board[x, y] = new Piece();
         }
 
         // Print the board to console
-        // TODO: make dynamic so that board size can be variable
+        // TODO: make this handle vanilla chess first
         public static void PrintBoard()
         {
-            Console.WriteLine("   || a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p |");
-            Console.WriteLine("---------------------------------------------------------------------");
-            for (var y = BOARD_SIZE; y > 0; y--)
+            //Print Column Labels
+            Console.Write("   ||");
+            for (var i = 0; i < BoardSize; i++) Console.Write(" " + (char) (i + 65) + " |");
+            //Print line break
+            Console.WriteLine();
+
+            for (var i = 0; i < 5 + 4 * BoardSize; i++) Console.Write('-');
+            Console.WriteLine();
+            for (var y = BoardSize; y > 0; y--)
             {
                 Console.Write(y);
                 Console.Write(y >= 10 ? " ||" : "  ||");
-                for (byte x = 0; x < BOARD_SIZE; x++) Console.Write(" " + _board[x, y - 1] + " |");
+                for (byte x = 0; x < BoardSize; x++) Console.Write(" " + _board[x, y - 1] + " |");
 
                 Console.WriteLine();
             }
         }
 
+
         // Performs initial setup of the board
+        //TODO: Test DaiShogi
         public static void SetUpBoard()
         {
-            
             //Chess on a Really Big Board Setup
-            Piece.PieceTypes[] CRRBpieceArray =
+            switch (GameType)
             {
-                Piece.PieceTypes.Rook,
-                Piece.PieceTypes.Knight,
-                Piece.PieceTypes.CRRBFD,
-                Piece.PieceTypes.CRRBWFA,
-                Piece.PieceTypes.Bishop,
-                Piece.PieceTypes.CRRBRose,
-                Piece.PieceTypes.CRRBArchBishop,
-                Piece.PieceTypes.Queen,
-                Piece.PieceTypes.King,
-                Piece.PieceTypes.CRRBChancellor,
-                Piece.PieceTypes.CRRBSuperKnight,
-                Piece.PieceTypes.Bishop,
-                Piece.PieceTypes.CRRBFD,
-                Piece.PieceTypes.CRRBWFA,
-                Piece.PieceTypes.Knight,
-                Piece.PieceTypes.Rook
-            };
+                case GameTypes.Chess:
+                    Piece.PieceTypes[] chesspieceArray =
+                    {
+                        Piece.PieceTypes.Rook,
+                        Piece.PieceTypes.Knight,
+                        Piece.PieceTypes.Bishop,
+                        Piece.PieceTypes.Queen,
+                        Piece.PieceTypes.King,
+                        Piece.PieceTypes.Bishop,
+                        Piece.PieceTypes.Knight,
+                        Piece.PieceTypes.Rook
+                    };
 
-            for (byte x = 0; x < BOARD_SIZE; x++)
-            {
-                _board[x, 0] = new Piece(CRRBpieceArray[x], Piece.Teams.White);
-                _board[x, 1] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.White);
-                _board[x, 15] = new Piece(CRRBpieceArray[x], Piece.Teams.Black);
-                _board[x, 14] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
+                    for (byte x = 0; x < BoardSize; x++)
+                    {
+                        _board[x, 0] = new Piece(chesspieceArray[x], Piece.Teams.White);
+                        _board[x, 1] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.White);
+                        _board[x, 7] = new Piece(chesspieceArray[x], Piece.Teams.Black);
+                        _board[x, 6] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
+                    }
+                    break;
+           
+                case GameTypes.CRRB:
+                    Piece.PieceTypes[] CRRBPieceArray =
+                    {
+                        Piece.PieceTypes.Rook,
+                        Piece.PieceTypes.Knight,
+                        Piece.PieceTypes.CRRBFD,
+                        Piece.PieceTypes.CRRBWFA,
+                        Piece.PieceTypes.Bishop,
+                        Piece.PieceTypes.CRRBRose,
+                        Piece.PieceTypes.CRRBArchBishop,
+                        Piece.PieceTypes.Queen,
+                        Piece.PieceTypes.King,
+                        Piece.PieceTypes.CRRBChancellor,
+                        Piece.PieceTypes.CRRBSuperKnight,
+                        Piece.PieceTypes.Bishop,
+                        Piece.PieceTypes.CRRBFD,
+                        Piece.PieceTypes.CRRBWFA,
+                        Piece.PieceTypes.Knight,
+                        Piece.PieceTypes.Rook
+                    };
+
+                    for (byte x = 0; x < BoardSize; x++)
+                    {
+                        _board[x, 0] = new Piece(CRRBPieceArray[x], Piece.Teams.White);
+                        _board[x, 1] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.White);
+                        _board[x, 15] = new Piece(CRRBPieceArray[x], Piece.Teams.Black);
+                        _board[x, 14] = new Piece(Piece.PieceTypes.Pawn, Piece.Teams.Black);
+                    }
+                    break;
+                    
+                case GameTypes.Shogi:
+                    Piece.PieceTypes[] shogiArray1 =
+                    {
+                        Piece.PieceTypes.ShogiLance,
+                        Piece.PieceTypes.ShogiKnight,
+                        Piece.PieceTypes.ShogiSilver,
+                        Piece.PieceTypes.ShogiGold,
+                        Piece.PieceTypes.ShogiKing,
+                        Piece.PieceTypes.ShogiGold,
+                        Piece.PieceTypes.ShogiSilver,
+                        Piece.PieceTypes.ShogiKnight,
+                        Piece.PieceTypes.ShogiLance
+                    };
+                    Piece.PieceTypes[] shogiArray2 =
+                    {
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn
+                        
+                    }
+                    Piece.PieceTypes[] shogiArray3 =
+                    {
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiBishop,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Rook,
+                        Piece.PieceTypes.Undefined
+                    };
+                    Piece.PieceTypes[][] shogiGrid = {shogiArray1,shogiArray2,shogiArray3};
+                    
+                    for (int x = 0; x < BoardSize; x++)
+                    {
+                        for (int y = 0; y < shogiGrid.Length; y++)
+                        {
+                            _board[x, y] = new Piece(shogiGrid[y][x],Piece.Teams.Black);
+                            _board[x, BoardSize - y - 1] = new Piece(shogiGrid[y][x],Piece.Teams.White);
+                        }
+                    }
+                    break;
+                case GameTypes.ChuShogi:
+                    throw new NotImplementedException();
+                    break;
+                case GameTypes.DaiShogi:
+                    //Dai Shogi
+                    Piece.PieceTypes[] daiShogiArray1 =
+                    {
+                        Piece.PieceTypes.ShogiLance,
+                        Piece.PieceTypes.ShogiKnight,
+                        Piece.PieceTypes.ShogiStone,
+                        Piece.PieceTypes.ShogiIron,
+                        Piece.PieceTypes.ShogiCopper,
+                        Piece.PieceTypes.ShogiSilver,
+                        Piece.PieceTypes.ShogiGold,
+                        Piece.PieceTypes.ShogiKing,
+                        Piece.PieceTypes.ShogiGold,
+                        Piece.PieceTypes.ShogiSilver,
+                        Piece.PieceTypes.ShogiCopper,
+                        Piece.PieceTypes.ShogiIron,
+                        Piece.PieceTypes.ShogiStone,
+                        Piece.PieceTypes.ShogiKnight,
+                        Piece.PieceTypes.ShogiLance
+                    };
+                    Piece.PieceTypes[] daiShogiArray2 =
+                    {
+                        Piece.PieceTypes.ShogiChariot,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiNekomata,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiLeopard,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiTiger,
+                        Piece.PieceTypes.ShogiElephant,
+                        Piece.PieceTypes.ShogiTiger,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiLeopard,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiNekomata,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiChariot
+                    };
+                    Piece.PieceTypes[] daiShogiArray3 =
+                    {
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiViolentOx,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiAngryBoar,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiWolf,
+                        Piece.PieceTypes.ShogiPhoenix,
+                        Piece.PieceTypes.ShogiLion,
+                        Piece.PieceTypes.ShogiKirin,
+                        Piece.PieceTypes.ShogiWolf,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiAngryBoar,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiViolentOx,
+                        Piece.PieceTypes.Undefined
+                    };
+                    Piece.PieceTypes[] daiShogiArray4 =
+                    {
+                        Piece.PieceTypes.ShogiRook,
+                        Piece.PieceTypes.ShogiDragon,
+                        Piece.PieceTypes.ShogiSideMover,
+                        Piece.PieceTypes.ShogiVerticalMover,
+                        Piece.PieceTypes.ShogiBishop,
+                        Piece.PieceTypes.ShogiDragonHorse,
+                        Piece.PieceTypes.ShogiDragonKing,
+                        Piece.PieceTypes.ShogiQueen,
+                        Piece.PieceTypes.ShogiDragonKing,
+                        Piece.PieceTypes.ShogiDragonHorse,
+                        Piece.PieceTypes.ShogiBishop,
+                        Piece.PieceTypes.ShogiVerticalMover,
+                        Piece.PieceTypes.ShogiSideMover,
+                        Piece.PieceTypes.ShogiDragon,
+                        Piece.PieceTypes.ShogiRook
+                    };
+                    Piece.PieceTypes[] daiShogiArray5 =
+                    {
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                        Piece.PieceTypes.ShogiPawn,
+                    };
+                    Piece.PieceTypes[] daiShogiArray6 =
+                    {
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiGoBetween,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.ShogiGoBetween,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined,
+                        Piece.PieceTypes.Undefined
+                    };
+                    Piece.PieceTypes[][] daiShogiGrid = {daiShogiArray1,daiShogiArray2,daiShogiArray3,daiShogiArray4,daiShogiArray5,daiShogiArray6};
+                    
+                    for (int x = 0; x < BoardSize; x++)
+                    {
+                        for (int y = 0; y < daiShogiGrid.Length; y++)
+                        {
+                            _board[x, y] = new Piece(daiShogiGrid[y][x],Piece.Teams.Black);
+                            _board[x, BoardSize - y - 1] = new Piece(daiShogiGrid[y][x],Piece.Teams.White);
+                        }
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            
-            //Dai Shogi
-            Piece.PieceTypes[] DaiShogiArray1 =
-            {
-                Piece.PieceTypes.ShogiLance,
-                Piece.PieceTypes.ShogiKnight,
-                Piece.PieceTypes.ShogiStone,
-                Piece.PieceTypes.ShogiIron,
-                Piece.PieceTypes.ShogiCopper,
-                Piece.PieceTypes.ShogiSilver,
-                Piece.PieceTypes.ShogiGold,
-                Piece.PieceTypes.ShogiKing,
-                Piece.PieceTypes.ShogiGold,
-                Piece.PieceTypes.ShogiSilver,
-                Piece.PieceTypes.ShogiCopper,
-                Piece.PieceTypes.ShogiIron,
-                Piece.PieceTypes.ShogiStone,
-                Piece.PieceTypes.ShogiKnight,
-                Piece.PieceTypes.ShogiLance
-            };
-            Piece.PieceTypes[] DaiShogiArray2 =
-            {
-                Piece.PieceTypes.ShogiChariot,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiNekomata,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiLeopard,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiTiger,
-                Piece.PieceTypes.ShogiElephant,
-                Piece.PieceTypes.ShogiTiger,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiLeopard,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiNekomata,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiChariot
 
-            };
-            Piece.PieceTypes[] DaiShogiArray3 =
-            {
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiViolentOx,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiAngryBoar,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiWolf,
-                Piece.PieceTypes.ShogiPhoenix,
-                Piece.PieceTypes.ShogiLion,
-                Piece.PieceTypes.ShogiKirin,
-                Piece.PieceTypes.ShogiWolf,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiAngryBoar,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiViolentOx,
-                Piece.PieceTypes.Undefined
-            };
-            Piece.PieceTypes[] DaiShogiArray4 =
-            {
-                Piece.PieceTypes.ShogiRook,
-                Piece.PieceTypes.ShogiDragon,
-                Piece.PieceTypes.ShogiSideMover,
-                Piece.PieceTypes.ShogiVerticalMover,
-                Piece.PieceTypes.ShogiBishop,
-                Piece.PieceTypes.ShogiDragonHorse,
-                Piece.PieceTypes.ShogiDragonKing,
-                Piece.PieceTypes.ShogiQueen,
-                Piece.PieceTypes.ShogiDragonKing,
-                Piece.PieceTypes.ShogiDragonHorse,
-                Piece.PieceTypes.ShogiBishop,
-                Piece.PieceTypes.ShogiVerticalMover,
-                Piece.PieceTypes.ShogiSideMover,
-                Piece.PieceTypes.ShogiDragon,
-                Piece.PieceTypes.ShogiRook
-            };
-            //Row 5 is just pawns
-            Piece.PieceTypes[] DaiShogiArray6 =
-            {
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiGoBetween,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiGoBetween,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
 
-            };
 
-            Piece.PieceTypes[] ShogiArray1 =
-            {
-                Piece.PieceTypes.ShogiLance,
-                Piece.PieceTypes.ShogiKnight,
-                Piece.PieceTypes.ShogiSilver,
-                Piece.PieceTypes.ShogiGold,
-                Piece.PieceTypes.ShogiKing,
-                Piece.PieceTypes.ShogiGold,
-                Piece.PieceTypes.ShogiSilver,
-                Piece.PieceTypes.ShogiKnight,
-                Piece.PieceTypes.ShogiLance
-            };
-            Piece.PieceTypes[] ShogiArray2 =
-            {
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.ShogiBishop,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Undefined,
-                Piece.PieceTypes.Rook,
-                Piece.PieceTypes.Undefined
-            };
-            //Array 3 is all pawns
-            
             //TODO: Chu Shogi
-
         }
     }
 }
