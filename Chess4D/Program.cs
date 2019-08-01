@@ -4,11 +4,18 @@ using System.Linq;
 
 
 //Todo: Add 4D Capability
+
+//Todo check for piece movement and update piecemoved
+//Todo add castling
 namespace Chess4D
 {
     internal class Program
     {
-        private static Piece.Teams currentPlayer;
+        private static Piece.Teams _currentPlayer;
+
+
+        //Special Rules
+
 
         // Checks if a piece is attacking it's allies
         // team is the team of the piece making the attack
@@ -57,21 +64,18 @@ namespace Chess4D
 
         private static bool WithinBounds(sbyte x, sbyte y)
         {
-            if (x >= 0 && y >= 0 && x < Board.BoardSize && y < Board.BoardSize)
-            {
-                return true;
-            }
+            if (x >= 0 && y >= 0 && x < Board.BoardSize && y < Board.BoardSize) return true;
 
             return false;
         }
-        
+
         // Get a piece given it's coordinates
         // Returns true if piece is valid, false otherwise
         private static bool GetPiece(ref sbyte coords)
         {
             if (coords > Board.BoardSize) throw new ArgumentOutOfRangeException(nameof(coords));
             //Prompt user for coordinates
-            Console.WriteLine(currentPlayer + "'s Move? (c,r)");
+            Console.WriteLine(_currentPlayer + "'s Move? (c,r)");
             var input = Console.ReadLine()?.Split(",");
 
             //Convert input into coordinates
@@ -94,14 +98,14 @@ namespace Chess4D
                 return false;
 
             //check team
-            if (Board._board[coords & 0xF, coords >> 4].team != currentPlayer) return false;
+            if (Board._board[coords & 0xF, coords >> 4].team != _currentPlayer) return false;
 
             return true;
         }
 
         private static IEnumerable<sbyte> GetMoves(sbyte coords)
         {
-            IEnumerable<sbyte> possibleMoves;
+            IEnumerable<sbyte> possibleMoves = new HashSet<sbyte>();
             switch (Board._board[coords & 0xF, coords >> 4].type)
             {
                 case Piece.PieceTypes.Rook:
@@ -130,7 +134,7 @@ namespace Chess4D
                     break;
                 case Piece.PieceTypes.Queen:
                     possibleMoves = QueenMove(coords);
-                   
+
                     break;
                 //Todo handle check/checkmate
                 case Piece.PieceTypes.King:
@@ -234,49 +238,45 @@ namespace Chess4D
             return possibleMoves;
         }
 
-        
+
         // Get possible moves for a piece
         //Todo: finish vanilla, CRRB
         //Todo: add shogi
-        
+
         //Vanilla Chess
-        
+
         //Todo: test
         //Todo: Check(mate)
+        //todo Check signs
         private static IEnumerable<sbyte> KingMove(sbyte coords)
         {
-            IEnumerable<sbyte> moves = new List<sbyte>();
+            HashSet<sbyte> moves = new HashSet<sbyte>();
             var currentX = Piece.GetX(coords);
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
             for (var i = -1; i < 2; i++)
+            for (var j = -1; j < 2; i++)
             {
-                for (var j = -1; j < 2; i++)
-                {
-                    var x = currentX;
-                    var y = currentY;
-                    if (WithinBounds(x, y))
-                    {
-                        if (i != 0 || j != 0)
-                        {
-                            moves.Append(Piece.GetCoords(x, y));
-                        }
-                        
-                    }
-                }
+                var x = currentX;
+                var y = currentY;
+                if (WithinBounds(x, y))
+                    if (i != 0 || j != 0)
+                        moves.Add(Piece.GetCoords(x, y));
             }
+
             return moves;
         }
-        
+
         //Todo: test
+        //todo check signs
         private static IEnumerable<sbyte> RookMove(sbyte coords)
         {
-            IEnumerable<sbyte> moves = new List<sbyte>();
+            HashSet<sbyte> moves = new HashSet<sbyte>();
             var currentX = Piece.GetX(coords);
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
             //horizontal moves
-            
+
             for (sbyte i = 0; i < Board.BoardSize; i++)
             {
                 var x = i;
@@ -284,7 +284,7 @@ namespace Chess4D
                 if (x != currentX)
                     if (!AttackingAllies(x, y, team))
                         if (!MoveThroughPieces(x, y, currentX, currentY))
-                            moves.Append(Piece.GetCoords(x, y));
+                            moves.Add(Piece.GetCoords(x, y));
             }
 
             //horizontal moves
@@ -295,179 +295,181 @@ namespace Chess4D
                 if (x != currentX)
                     if (!AttackingAllies(x, y, team))
                         if (!MoveThroughPieces(x, y, currentX, currentY))
-                            moves.Append(Piece.GetCoords(x, y));
+                            moves.Add(Piece.GetCoords(x, y));
             }
 
             return moves;
         }
+
         //Todo: test
+        //todo check signs
         private static IEnumerable<sbyte> BishopMove(sbyte coords)
         {
-            IEnumerable<sbyte> moves = new List<sbyte>();
+            HashSet<sbyte> moves = new HashSet<sbyte>();
             var currentX = Piece.GetX(coords);
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
             //Diagonal
             for (sbyte i = 0; i < Board.BoardSize; i++)
             {
-                sbyte x = i;
-                sbyte y = (sbyte)(currentY - (currentX - i));
+                var x = i;
+                var y = (sbyte) (currentY - (currentX - i));
                 if (x != currentX)
-                {
                     if (WithinBounds(x, y))
-                    {
                         if (!AttackingAllies(x, y, team))
-                        {
                             if (!MoveThroughPieces(x, y, currentX, currentY))
-                            {
-                                moves.Append(Piece.GetCoords(x, y));
-                            }
-                        }
-                    }
-                }
+                                moves.Add(Piece.GetCoords(x, y));
             }
 
             for (sbyte i = 0; i < Board.BoardSize; i++)
             {
-                sbyte x =  (sbyte) (currentX + (currentY - i));
+                var x = (sbyte) (currentX + (currentY - i));
                 var y = i;
-                if(x != currentX)
-                {
+                if (x != currentX)
                     if (WithinBounds(x, y))
-                    {
                         if (!AttackingAllies(x, y, team))
-                        {
                             if (!MoveThroughPieces(x, y, currentX, currentY))
-                            {
-                                moves.Append(Piece.GetCoords(x,y));
-                            }
-                        }
-                    }
-                }
+                                moves.Add(Piece.GetCoords(x, y));
             }
 
             return moves;
         }
-        
+
         //Todo:test
+        //todo check signs
         private static IEnumerable<sbyte> QueenMove(sbyte coords)
         {
-            IEnumerable<sbyte> possibleMoves = RookMove(coords);
+            var possibleMoves = RookMove(coords);
             possibleMoves = possibleMoves.Union(BishopMove(coords));
             return possibleMoves;
         }
-        
+
+        //Todo Test:
+        //todo check signs
         private static IEnumerable<sbyte> KnightMove(sbyte coords)
         {
-            IEnumerable<sbyte> moves = new List<sbyte>();
+            HashSet<sbyte> moves = new HashSet<sbyte>();
             var currentX = Piece.GetX(coords);
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
 
             for (sbyte i = -2; i < 3; i += 4)
+            for (sbyte j = -1; j < 2; j += 2)
             {
-                for (sbyte j = -1; j < 2; j += 2)
-                {
-                    sbyte x = (sbyte)(i + currentX);
-                    sbyte y = (sbyte) (j + currentY);
-                    if (!AttackingAllies(x, y, team))
-                    {
-                        if (WithinBounds(x, y))
-                        {
-                            moves.Append(Piece.GetCoords(x, y));
-                        }
-                    }
-                }
+                var x = (sbyte) (i + currentX);
+                var y = (sbyte) (j + currentY);
+                if (!AttackingAllies(x, y, team))
+                    if (WithinBounds(x, y))
+                        moves.Add(Piece.GetCoords(x, y));
             }
+
             for (sbyte i = -1; i < 2; i += 2)
+            for (sbyte j = -2; j < 3; j += 4)
             {
-                for (sbyte j = -2; j < 3; j += 4)
-                {
-                    sbyte x = (sbyte)(i + currentX);
-                    sbyte y = (sbyte) (j + currentY);
-                    if (!AttackingAllies(x, y, team))
-                    {
-                        if (WithinBounds(x, y))
-                        {
-                            moves.Append(Piece.GetCoords(x, y));
-                        }
-                    }
-                }
+                var x = (sbyte) (i + currentX);
+                var y = (sbyte) (j + currentY);
+                if (!AttackingAllies(x, y, team))
+                    if (WithinBounds(x, y))
+                        moves.Add(Piece.GetCoords(x, y));
             }
 
             return moves;
         }
-        
+
+        //Todo test
         private static IEnumerable<sbyte> PawnMove(sbyte coords)
         {
-            IEnumerable<sbyte> moves = new List<sbyte>();
+            HashSet<sbyte> moves = new HashSet<sbyte>();
             var currentX = Piece.GetX(coords);
             var currentY = Piece.GetY(coords);
             var team = Board._board[currentX, currentY].team;
-            
+
+            sbyte x;
+            sbyte y;
+            //Diagonal Moves
             for (sbyte i = -1; i < 2; i += 2)
             {
-                var x = (sbyte)(currentX + i);
-                var y = (sbyte) ((team == Piece.Teams.White) ? currentY - 1 : currentY + 1);
+                x = (sbyte) (currentX + i);
+                y = (sbyte) (team == Piece.Teams.White ? currentY + 1 : currentY - 1);
 
-                var attacking = Board._board[x, y];
-                // if there's an piece in killing range that isn't an ally
-                if ((attacking.type != Piece.PieceTypes.Undefined) && !AttackingAllies(x, y, team))
+                //makes board reads safe
+                if (WithinBounds(x, y))
                 {
-                    moves.Append(Piece.GetCoords(x, y));
+                    var attacking = Board._board[x, y];
+                    // if there's an piece in killing range that isn't an ally
+                    if (attacking.type != Piece.PieceTypes.Undefined && !AttackingAllies(x, y, team))
+                        moves.Add(Piece.GetCoords(x, y));
                 }
             }
 
-            var x = currentX;
-            var y = (sbyte) ((team == Piece.Teams.White) ? currentY - 1 : currentY + 1);
+            //Forward Move
+            x = currentX;
+            y = (sbyte) (team == Piece.Teams.White ? currentY + 1 : currentY - 1);
             //if no piece and within bounds
-            if (WithinBounds(x, y) && Board._board[x, y].team != Piece.Teams.Undefined)
-            {
-                moves.Append(Piece.GetCoords(x, y));
-            }
-
-            //todo: finish
+            if (WithinBounds(x, y) && Board._board[x, y].team == Piece.Teams.Undefined)
+                moves.Add(Piece.GetCoords(x, y));
+            //En Passant (should be merged with 
+            if (team == Piece.Teams.White && currentY == Board.BoardSize / 2 - 1 ||
+                team == Piece.Teams.Black && currentY == Board.BoardSize / 2)
+                moves.Add(Piece.GetCoords(x, y));
+            //Mid Board Jump
+            //Todo verify with 16x16
             if (Board._board[currentX, currentY].FirstMove)
             {
-                y = (sbyte) ((team == Piece.Teams.White) ? currentY - 2 : currentY + 2);
+                var targetY = Board.BoardSize / 2 + (team == Piece.Teams.White ? -1 : 0);
+                if (team == Piece.Teams.White)
+                {
+                    for (sbyte i = y; i <= targetY; i ++)
+                    {
+                        if (!Board.isPieceAt(x, i) && WithinBounds(x, i))
+                            if (!MoveThroughPieces(x, i, currentX, currentY))
+                                moves.Add(Piece.GetCoords(x, i));
+                    }
+                    
+                }
+                else
+                {
+                    for (sbyte i = y; i >= targetY; i--)
+                    {
+                        if (!Board.isPieceAt(x, i) && WithinBounds(x, i))
+                            if (!MoveThroughPieces(x, i, currentX, currentY))
+                                moves.Add(Piece.GetCoords(x, i));
+                    }
+                }
+                
+                
             }
-            throw new NotImplementedException();
+
+            return moves;
         }
-        
-       
-        
+
+
         private static IEnumerable<sbyte> SuperKnightMoves(sbyte coords)
         {
             throw new NotImplementedException();
         }
-        
-      
-        
+
+
         private static IEnumerable<sbyte> RoseMove(sbyte coords)
         {
             throw new NotImplementedException();
         }
-        
-        
-        
+
+
         private static IEnumerable<sbyte> WFAMove(sbyte coords)
         {
             throw new NotImplementedException();
         }
-        
+
         private static IEnumerable<sbyte> FDMove(sbyte coords)
         {
             throw new NotImplementedException();
         }
-        
-        
-
-        
 
 
         public static void Main(string[] args)
         {
-            currentPlayer = Piece.Teams.White;
+            _currentPlayer = Piece.Teams.White;
             //Set Up Board
             Board.SetUpBoard();
             Board.PrintBoard();
@@ -482,20 +484,29 @@ namespace Chess4D
                 {
                     //find moves
                     var moves = GetMoves(coords);
-                    moveValid = SelectMove(moves);
+                    moveValid = SelectMove(Board._board[Piece.GetX(coords), Piece.GetY(coords)], moves);
                 }
             }
         }
 
-        private static bool SelectMove(IEnumerable<sbyte> moves)
+        private static bool SelectMove(Piece p, IEnumerable<sbyte> moves)
         {
+            foreach (var v in moves)
+            {
+                p.FirstMove = false; //Todo: move this after move is selected
+                Console.Write(Piece.CoordToString(v));
+            }
+
             throw new NotImplementedException();
         }
     }
 
     internal class Piece
     {
-        public bool FirstMove = true;
+        public static string CoordToString(sbyte coord)
+        {
+            return "(" + (char) (GetX(coord) + 65) + ", " + (GetY(coord) +1) + ")";
+        }
         public enum PieceTypes
         {
             Undefined,
@@ -582,6 +593,8 @@ namespace Chess4D
             White
         }
 
+        public bool FirstMove = true;
+
         public Teams team;
 
         public PieceTypes type;
@@ -612,6 +625,7 @@ namespace Chess4D
         {
             return (sbyte) ((y << 4) | (x & 0xF));
         }
+
         //TODO: Add Shogi Pieces
         public override string ToString()
         {
@@ -751,24 +765,54 @@ namespace Chess4D
             CRRB,
             Shogi,
             ChuShogi,
-            DaiShogi
+            DaiShogi,
+            Testing
         }
 
         //Board Size, changing this will probably break something
         //But we may need to change this to 48 when we start working on mapping the board to other surfaces
-        public const sbyte BoardSize = 8;
+        public static sbyte BoardSize;
 
         // ReSharper disable once InconsistentNaming
         public static readonly Piece[,] _board;
 
-        public static GameTypes GameType = GameTypes.Chess;
+        public static GameTypes GameType = GameTypes.Testing;
 
         static Board()
         {
+            switch (GameType)
+            {
+                case GameTypes.Chess:
+                    BoardSize = 8;
+                    break;
+                case GameTypes.CRRB:
+                    BoardSize = 16;
+                    break;
+                case GameTypes.Shogi:
+                    BoardSize = 9;
+                    break;
+                case GameTypes.ChuShogi:
+                    BoardSize = 12;
+                    break;
+                case GameTypes.DaiShogi:
+                    BoardSize = 15;
+                    break;
+                case GameTypes.Testing:
+                    BoardSize = 16;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             _board = new Piece[BoardSize, BoardSize];
             for (sbyte x = 0; x < BoardSize; x++)
             for (sbyte y = 0; y < BoardSize; y++)
                 _board[x, y] = new Piece();
+        }
+
+        public static bool isPieceAt(sbyte x, sbyte y)
+        {
+            return x <= 0 && x < BoardSize && y <= 0 && y < BoardSize ||
+                   _board[x, y].type != Piece.PieceTypes.Undefined;
         }
 
         // Print the board to console
@@ -1028,6 +1072,10 @@ namespace Chess4D
                         _board[x, BoardSize - y - 1] = new Piece(daiShogiGrid[y][x], Piece.Teams.White);
                     }
 
+                    break;
+                case GameTypes.Testing:
+                    BoardSize = 16;
+                    _board[0,1] = new Piece(Piece.PieceTypes.Pawn,Piece.Teams.White);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
