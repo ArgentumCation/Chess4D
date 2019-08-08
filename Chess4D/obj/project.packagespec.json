@@ -29,11 +29,19 @@
   "frameworks": {
     "netcoreapp2.1": {
       "dependencies": {
+        "CSFML": {
+          "target": "Package",
+          "version": "[2.5.0, )"
+        },
         "Microsoft.NETCore.App": {
           "suppressParent": "All",
           "target": "Package",
           "version": "[2.1.0, )",
           "autoReferenced": true
+        },
+        "SFML.Net.x64": {
+          "target": "Package",
+          "version": "[2.4.0, )"
         }
       },
       "imports": [
