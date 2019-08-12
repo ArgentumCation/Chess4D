@@ -10,7 +10,6 @@ namespace Chess4D
         public enum GameTypes
         {
             Chess,
-
             // ReSharper disable once InconsistentNaming
             CRRB,
             Shogi,
@@ -26,7 +25,7 @@ namespace Chess4D
         // ReSharper disable once InconsistentNaming
         public static Piece[,] _board;
 
-        private static readonly GameTypes GameType = GameTypes.DaiShogi;
+        private static readonly GameTypes GameType = GameTypes.Chess;
 
         static Board()
         {
