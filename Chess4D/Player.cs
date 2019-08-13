@@ -6,7 +6,7 @@ namespace Chess4D
     {
         public readonly Teams Team;
         public sbyte? SelectedPiece;
-        public sbyte? SeletedMove;
+        public sbyte? SelectedMove;
         public Player(Teams team)
         {
             Team = team;

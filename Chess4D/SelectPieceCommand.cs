@@ -12,7 +12,7 @@ namespace Chess4D
             _frontend = frontend;
         }
 
-
+        //TODO: add support for dropping pieces
         public override void Execute()
         {
             _currentPlayer.SelectedPiece = _frontend.SelectPiece(_currentPlayer.Team);

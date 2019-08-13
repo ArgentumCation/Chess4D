@@ -37,6 +37,9 @@ namespace Chess4D
                 //get possible moves
                 var moves = GetMoves(currentPlayer.SelectedPiece);
 
+                //todo prune moves (puts you in check)
+                PruneMoves(currentPlayer, selectedPiece, moves);
+                
                 //select move
                 CommandProcessor.ExecuteCommand(
                     new SelectMoveCommand(moves, currentPlayer, frontend));
@@ -55,7 +58,7 @@ namespace Chess4D
                 //Todo: Implement
                 //actually make the move
                 CommandProcessor.ExecuteCommand(
-                    new MoveCommand(currentPlayer.SeletedMove));
+                    new MoveCommand(currentPlayer.SelectedMove));
 
 
                 break;
@@ -73,7 +76,7 @@ namespace Chess4D
             //Update Loop
             var turn = 0;
             Player[] PlayerList = {new Player(Teams.White), new Player(Teams.Black)};
-            while (gameNotOver())
+            while (!gameOver())
             {
                 frontend.PrintBoard();
                 var currentPlayer = PlayerList[turn % PlayerList.Length];
@@ -83,8 +86,28 @@ namespace Chess4D
         }
 
         //todo finish
-        private static bool gameNotOver()
+        private static bool gameOver()
         {
+            /*
+             * //Looks for checkmate
+             * foreach(var piece in board){
+             *    var moves = piece.getMoves();
+             *    foreach(Var move in moves
+             *    {    
+             *    CommandProcessor.ExecuteCommand(new MoveCommand(move));
+             *     LookForCheck();
+             *     CommandProcessor.Undo();
+             *    }
+             * }
+             * //todo regular shogi impasse
+             * //Looks for two kings
+             * //Looks for turn count
+             * //Check for Board Positions Repeating(1 time in dai shogi 4 in chu/normal shogi
+             * //Todo put somewhere else: Stalemated player loses in dai/chu shogi
+             * //Todo: shogi pieces can move in and out of check
+             * //Todo only normal shogi has drops
+             * //todo pawns can not checkmate when dropped
+             */
             return true;
         }
     }

@@ -23,13 +23,13 @@ namespace Chess4D
                 _player.SelectedPiece = null;
             }
 
-            _player.SeletedMove = move;
+            _player.SelectedMove = move;
 
         }
 
         public override void Undo()
         {
-            _player.SeletedMove = null;
+            _player.SelectedMove = null;
         }
     }
 }
