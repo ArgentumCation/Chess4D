@@ -37,8 +37,9 @@ namespace Chess4D
                 //get possible moves
                 var moves = GetMoves(currentPlayer.SelectedPiece);
 
+                //todo add castling
                 //todo prune moves (puts you in check)
-                PruneMoves(currentPlayer, selectedPiece, moves);
+                //PruneMoves(currentPlayer, selectedPiece, moves);
                 
                 //select move
                 CommandProcessor.ExecuteCommand(
@@ -59,15 +60,17 @@ namespace Chess4D
                 //actually make the move
                 CommandProcessor.ExecuteCommand(
                     new MoveCommand(currentPlayer.SelectedMove));
-
-
+                //Todo Check for promotions
+                /* if(promotions{
+                    CommandProcessor.ExecuteCommand(new PromoteCommand();
+                 }*/
                 break;
             }
         }
 
         public static void Main(string[] args)
         {
-            IFrontend frontend = new ConsoleApp();
+            IFrontend frontend = new FNAApp();
             _currentPlayer = Teams.White;
             //Set Up Board
             Board.SetUpBoard();
@@ -108,7 +111,7 @@ namespace Chess4D
              * //Todo only normal shogi has drops
              * //todo pawns can not checkmate when dropped
              */
-            return true;
+            return false;
         }
     }
 }

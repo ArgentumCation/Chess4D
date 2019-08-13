@@ -1,19 +1,18 @@
 ﻿{
   "version": "1.0.0",
   "restore": {
-    "projectUniqueName": "C:\\Users\\ajayk\\RiderProjects\\Chess4D\\Chess4D\\Chess4D.csproj",
+    "projectUniqueName": "/Users/ajay/Chess4D/Chess4D/Chess4D.csproj",
     "projectName": "Chess4D",
-    "projectPath": "C:\\Users\\ajayk\\RiderProjects\\Chess4D\\Chess4D\\Chess4D.csproj",
-    "outputPath": "C:\\Users\\ajayk\\RiderProjects\\Chess4D\\Chess4D\\obj\\",
+    "projectPath": "/Users/ajay/Chess4D/Chess4D/Chess4D.csproj",
+    "outputPath": "/Users/ajay/Chess4D/Chess4D/obj/",
     "projectStyle": "PackageReference",
     "fallbackFolders": [
-      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
     ],
     "originalTargetFrameworks": [
       "netcoreapp2.1"
     ],
     "sources": {
-      "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
       "https://api.nuget.org/v3/index.json": {}
     },
     "frameworks": {
@@ -39,10 +38,6 @@
         "Newtonsoft.Json": {
           "target": "Package",
           "version": "[12.0.2, )"
-        },
-        "SFML.Net.x64": {
-          "target": "Package",
-          "version": "[2.4.0, )"
         }
       },
       "imports": [
