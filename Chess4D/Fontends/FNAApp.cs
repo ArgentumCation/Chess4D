@@ -9,18 +9,15 @@ namespace Chess4D
 {
     public class FNAApp : IFrontend
     {
-        public delegate bool StartSelectingMove();
-
-        //event 
-        
-        public delegate bool finishedSelectingMove();
-
-        public delegate bool startedSelectingPiece();
-
-        public delegate bool finishedSelectingPiece();
+        //Create startSelectPiece event
+        public delegate void startSelectPiece();
+        public event startSelectPiece startSelectPieceEvent;
+        //Receive finishSelectPiece event
+        //Send  startSelectMove event
+        //receive finishSelectMove event
         public FNAApp()
         {
-            using (var game = new Game1())
+            using (var game = new Game1(this))
             {
                 Task.Factory.StartNew(() => game.Run());
             }
@@ -33,6 +30,8 @@ namespace Chess4D
 
         public sbyte? SelectMove(IEnumerable<sbyte> moves)
         {
+            //Send startSelectPieceEvent
+            startSelectPieceEvent?.Invoke();
             throw new NotImplementedException();
         }
 
@@ -44,11 +43,18 @@ namespace Chess4D
 
     public class Game1 : Game
     {
+        
+        //FNApp used to set up events
+        private FNAApp _fnaApp;
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
 
-        public Game1()
+        private bool _needToPromptUserForPiece = false;
+        public Game1(FNAApp fnaApp)
         {
+            _fnaApp = fnaApp;
+            //call function when receive startSelectPieceEvent
+            fnaApp.startSelectPieceEvent += () => { _needToPromptUserForPiece = true; };
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -78,6 +84,12 @@ namespace Chess4D
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
+            //Handle prompt
+            if (_needToPromptUserForPiece)
+            {
+                //Handle here
+                _needToPromptUserForPiece = false;
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -92,4 +104,8 @@ namespace Chess4D
             base.Draw(gameTime);
         }
     }
+    
+    
+ 
+    
 }
